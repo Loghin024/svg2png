@@ -1,0 +1,90 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg
+*.egg-info/
+dist/
+build/
+*.pyz
+*.pyz.asc
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+.coverage
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+*.coveragerc
+*.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Pylint
+pylint-report.txt
+pylint-output/
+
+# pytype
+.pytype/
+
+# Python profiler
+*.prof
+
+# PyCharm-specific files
+.idea/
+*.iml
+*.iws
+out/
+
+# Virtual environment
+*.env
+*.venv
+*.virtualenv
+
+# Jupyter Notebook files
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# macOS files
+.DS_Store
+
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+
+# Editor backups and swap files
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*.log
+
+# Others
+*.lock
+*.pyo
+
+# Local configuration files
+*.env
+.envrc
