@@ -38,7 +38,7 @@ class SVGParser:
 
             for key, value in element.attrib.items():
                 element_dict[key] = value
-            elements.append(element)
+            elements.append(element_dict)
 
         self.svg_attributes['width'] = width
         self.svg_attributes['height'] = height
