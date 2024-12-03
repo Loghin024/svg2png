@@ -34,15 +34,34 @@ class SVGParser:
             tag = element.tag.split('}')[1]
             element_dict = dict()
             element_dict['tag'] = tag
-            # get the attributes
 
+            # get the attributes
             for key, value in element.attrib.items():
-                element_dict[key] = value
+                if key == 'style':
+                    element_dict = self.parse_style_attribute(element_dict, value)
+                else:
+                    element_dict[key] = value
             elements.append(element_dict)
 
         self.svg_attributes['width'] = width
         self.svg_attributes['height'] = height
         self.svg_attributes['elements'] = elements
+
+    def parse_style_attribute(self, element_dict, style):
+        """
+        Parse the style attribute
+        :param element_dict:
+        :param style:
+        :return: element_dict with style attributes
+        """
+
+        style_attributes = style.split(';')
+        for attribute in style_attributes:
+            key, value = attribute.split(':')
+            element_dict[key.strip()] = value.strip()
+
+        return element_dict
+
 
     def get_svg_attributes(self):
         """
