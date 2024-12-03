@@ -73,13 +73,48 @@ class PNGRenderer:
             draw.rectangle([x, y + ry, x + width, y + height - ry], fill=fill)
 
     def render_circle(self, draw, element):
-        pass
+        """
+        Render the circle
+        """
+        cx = float(element.get('cx', 0))
+        cy = float(element.get('cy', 0))
+        r = float(element.get('r', 0))
+        fill = element.get('fill', 'black')
+        stroke = element.get('stroke', None)
+        stroke_width = int(element.get('stroke-width', 1))
+
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=fill, outline=stroke, width=stroke_width)
 
     def render_line(self, draw, element):
-        pass
+        """
+        Render the line
+        """
+        x1 = float(element.get('x1', 0))
+        y1 = float(element.get('y1', 0))
+        x2 = float(element.get('x2', 0))
+        y2 = float(element.get('y2', 0))
+        stroke = element.get('stroke', 'black')
+        stroke_width = int(element.get('stroke-width', 1))
+
+        draw.line([x1, y1, x2, y2], fill=stroke, width=stroke_width)
 
     def render_polyline(self, draw, element):
-        pass
+        """
+        Render the polyline
+        """
+        points = element.get('points', '')
+        points = points.split(' ')
+
+        # convert from a,b to [(a,b), (c,d)]
+        points = [point.split(',') for point in points]
+
+        # convert from string to int
+        points = [(int(point[0]), int(point[1])) for point in points if point]
+
+        stroke = element.get('stroke', 'black')
+        stroke_width = int(element.get('stroke-width', 1))
+
+        draw.line(points, fill=stroke, width=stroke_width)
 
     def render_ellipse(self, draw, element):
         """
