@@ -2,7 +2,7 @@
     <!-- Rectangle -->
     <rect x="250" y="10" width="200" height="100" fill="blue" />
     <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />
-    <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />
+<!--    <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />-->
     <rect width="300" height="100" x="10" y="140" style="fill:rgb(0,0,255);stroke-width:3;stroke:red" />
     <!-- Circle -->
     <circle cx="400" cy="150" r="50" fill="red" />
