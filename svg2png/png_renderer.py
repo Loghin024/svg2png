@@ -59,7 +59,7 @@ class PNGRenderer:
 
         if rx == 0 and ry == 0:
             # draw normal rectangle
-            draw.rectangle([x, y, x + width, y + height], fill=fill, outline=stroke, width=stroke_width )
+            draw.rectangle([x, y, x + width, y + height], fill=fill, outline=stroke, width=stroke_width)
         else:
 
             # draw corners using ellipses
@@ -129,8 +129,35 @@ class PNGRenderer:
         stroke_width = int(element.get('stroke-width', 1))
 
         draw.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=fill, outline=stroke, width=stroke_width)
-    def render_path(self, draw, element):
-        pass
+
+    # def render_path(self, draw, element):
+    #     pass
+
+    # def render_path(self, draw, element):
+    #     """
+    #     Render the path element.
+    #     """
+    #     d = element.get('d', '')  # SVG path data
+    #     fill = element.get('fill', None)
+    #     stroke = element.get('stroke', 'black')
+    #     stroke_width = int(element.get('stroke-width', 1))
+    #
+    #     # Parse the path data
+    #     path = parse_path(d)
+    #
+    #     # Convert the path to a list of points for Pillow
+    #     points = []
+    #     for segment in path:
+    #         if hasattr(segment, 'start'):
+    #             points.append((segment.start.real, segment.start.imag))
+    #         if hasattr(segment, 'end'):
+    #             points.append((segment.end.real, segment.end.imag))
+    #
+    #     # Draw the path as a polygonal approximation
+    #     if fill:
+    #         draw.polygon(points, fill=fill)
+    #     if stroke:
+    #         draw.line(points, fill=stroke, width=stroke_width)
 
     def get_image(self):
         """

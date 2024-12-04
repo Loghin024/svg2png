@@ -2,8 +2,8 @@ import sys
 from svg_parser import SVGParser
 from png_renderer import PNGRenderer
 
-def main():
 
+def main():
     # get the arguments
     args = sys.argv[1:]
 
@@ -41,6 +41,7 @@ def main():
 
     # save the image
     image.save(args[1])
+
 
 if __name__ == "__main__":
     main()

@@ -5,6 +5,7 @@ class SVGParser:
     """"
     SVGParser class
     """
+
     def __init__(self, svg_file_path):
         self.svg_file_path = svg_file_path
         self.svg_attributes = dict()
@@ -61,7 +62,6 @@ class SVGParser:
             element_dict[key.strip()] = value.strip()
 
         return element_dict
-
 
     def get_svg_attributes(self):
         """
