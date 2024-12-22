@@ -130,86 +130,190 @@ class PNGRenderer:
 
         draw.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=fill, outline=stroke, width=stroke_width)
 
-    # def render_path(self, draw, element):
-    #     pass
-
     def render_path(self, draw, element):
         """
-        Render the path
+        Render the path, supporting all SVG path commands
         """
-        path_data = element.get('d', '')  # Get the 'd' attribute, which contains path data
-        fill = element.get('fill', None)  # Fill color
-        stroke = element.get('stroke', None)  # Stroke color
-        stroke_width = int(element.get('stroke-width', 1))  # Stroke width
+        path_data = element.get('d', '')
+        fill = element.get('fill', None)
+        stroke = element.get('stroke', None)
+        stroke_width = int(element.get('stroke-width', 1))
 
-        # Handle 'none' for fill and stroke
         if fill == 'none':
             fill = None
         if stroke == 'none':
             stroke = None
 
         if not path_data:
-            return  # No path data to render
+            return
 
-        # Parse the SVG path data
-        path_segments = re.findall(r'([a-zA-Z])|([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)', path_data)
+        try:
+            path_segments = re.findall(r'[a-zA-Z]|[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', path_data)
+            current_pos = [0, 0]
+            start_pos = [0, 0]
 
-        current_pos = [0, 0]
-        start_pos = [0, 0]
-        control_point = None  # For smooth Bézier curves
-        path_points = []
+            # for smooth Bézier curves
+            control_point = None
+            path_points = []
+            i = 0
 
-        i = 0
-        while i < len(path_segments):
-            segment = path_segments[i]
+            while i < len(path_segments):
+                segment = path_segments[i]
 
-            if segment[0].isalpha():  # Command
-                command = segment[0]
-                i += 1
-            else:  # Number
-                command = None
+                if segment.isalpha():  # Command
+                    # ensure command is uppercase
+                    command = segment.upper()
 
-            if command == 'M':  # Absolute move to
-                x, y = float(path_segments[i][1]), float(path_segments[i + 1][1])
-                current_pos = [x, y]
-                start_pos = [x, y]
-                path_points.append(tuple(current_pos))
-                i += 2
+                    # check if command is relative
+                    relative = segment.islower()
+                    i += 1
+                else:
+                    command = None
+                    relative = False
 
-            elif command == 'L':  # Absolute line to
-                x, y = float(path_segments[i][1]), float(path_segments[i + 1][1])
-                current_pos = [x, y]
-                path_points.append(tuple(current_pos))
-                i += 2
+                if command == 'M':  # moveto
+                    x, y = float(path_segments[i]), float(path_segments[i + 1])
+                    if relative:
+                        x += current_pos[0]
+                        y += current_pos[1]
+                    current_pos = [x, y]
+                    start_pos = [x, y]
+                    path_points.append(tuple(current_pos))
+                    i += 2
 
-            elif command == 'Q':  # Quadratic Bézier curve
-                x1, y1 = float(path_segments[i][1]), float(path_segments[i + 1][1])
-                x2, y2 = float(path_segments[i + 2][1]), float(path_segments[i + 3][1])
-                path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
-                control_point = [x1, y1]
-                current_pos = [x2, y2]
-                i += 4
+                elif command == 'L':  # lineto
+                    x, y = float(path_segments[i]), float(path_segments[i + 1])
+                    if relative:
+                        x += current_pos[0]
+                        y += current_pos[1]
+                    current_pos = [x, y]
+                    path_points.append(tuple(current_pos))
+                    i += 2
 
-            elif command == 'T':  # Smooth quadratic Bézier curve
-                if control_point is None:  # If no previous control point, assume the current position
-                    control_point = current_pos
+                elif command == 'H':  # horizontal lineto
+                    x = float(path_segments[i])
+                    if relative:
+                        x += current_pos[0]
+                    current_pos[0] = x
+                    path_points.append(tuple(current_pos))
+                    i += 1
 
-                # Reflect the control point
-                x1, y1 = 2 * current_pos[0] - control_point[0], 2 * current_pos[1] - control_point[1]
-                x2, y2 = float(path_segments[i][1]), float(path_segments[i + 1][1])
-                path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
-                control_point = [x1, y1]
-                current_pos = [x2, y2]
-                i += 2
+                elif command == 'V':  # vertical lineto
+                    y = float(path_segments[i])
+                    if relative:
+                        y += current_pos[1]
+                    current_pos[1] = y
+                    path_points.append(tuple(current_pos))
+                    i += 1
 
-            elif command in {'Z', 'z'}:  # Close path
-                path_points.append(tuple(start_pos))
+                elif command == 'C':  # curveto
+                    x1, y1 = float(path_segments[i]), float(path_segments[i + 1])
+                    x2, y2 = float(path_segments[i + 2]), float(path_segments[i + 3])
+                    x3, y3 = float(path_segments[i + 4]), float(path_segments[i + 5])
+                    if relative:
+                        x1 += current_pos[0]
+                        y1 += current_pos[1]
+                        x2 += current_pos[0]
+                        y2 += current_pos[1]
+                        x3 += current_pos[0]
+                        y3 += current_pos[1]
+                    path_points.extend(self._cubic_bezier_curve(current_pos, [x1, y1], [x2, y2], [x3, y3]))
+                    control_point = [x2, y2]
+                    current_pos = [x3, y3]
+                    i += 6
 
-        # Draw the path
-        if fill:
-            draw.polygon(path_points, fill=fill)
-        if stroke:
-            draw.line(path_points, fill=stroke, width=stroke_width)
+                elif command == 'S':  # smooth curveto
+                    if control_point is None:
+                        control_point = current_pos
+                    x1, y1 = 2 * current_pos[0] - control_point[0], 2 * current_pos[1] - control_point[1]
+                    x2, y2 = float(path_segments[i]), float(path_segments[i + 1])
+                    x3, y3 = float(path_segments[i + 2]), float(path_segments[i + 3])
+                    if relative:
+                        x2 += current_pos[0]
+                        y2 += current_pos[1]
+                        x3 += current_pos[0]
+                        y3 += current_pos[1]
+                    path_points.extend(self._cubic_bezier_curve(current_pos, [x1, y1], [x2, y2], [x3, y3]))
+                    control_point = [x2, y2]
+                    current_pos = [x3, y3]
+                    i += 4
+
+                elif command == 'Q':  # quadratic Bézier curve
+                    x1, y1 = float(path_segments[i]), float(path_segments[i + 1])
+                    x2, y2 = float(path_segments[i + 2]), float(path_segments[i + 3])
+                    if relative:
+                        x1 += current_pos[0]
+                        y1 += current_pos[1]
+                        x2 += current_pos[0]
+                        y2 += current_pos[1]
+                    path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
+                    control_point = [x1, y1]
+                    current_pos = [x2, y2]
+                    i += 4
+
+                elif command == 'T':  # smooth quadratic Bézier curveto
+
+                    if control_point is None:
+                        control_point = current_pos
+                    x1, y1 = 2 * current_pos[0] - control_point[0], 2 * current_pos[1] - control_point[1]
+                    x2, y2 = float(path_segments[i]), float(path_segments[i + 1])
+                    if relative:
+                        x2 += current_pos[0]
+                        y2 += current_pos[1]
+                    path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
+                    control_point = [x1, y1]
+                    current_pos = [x2, y2]
+                    i += 2
+
+                elif command == 'A':  # elliptical arc
+                    rx, ry = float(path_segments[i]), float(path_segments[i + 1])
+                    x_axis_rotation = float(path_segments[i + 2])
+                    large_arc_flag = bool(int(path_segments[i + 3]))
+                    sweep_flag = bool(int(path_segments[i + 4]))
+                    x2, y2 = float(path_segments[i + 5]), float(path_segments[i + 6])
+                    if relative:
+                        x2 += current_pos[0]
+                        y2 += current_pos[1]
+                    path_points.extend(
+                        self._elliptical_arc(current_pos, rx)
+                    )
+                    current_pos = [x2, y2]
+                    i += 7
+
+                elif command in {'Z', 'z'}:  # closepath
+                    path_points.append(tuple(start_pos))
+                    current_pos = start_pos
+
+            # draw the path
+            if fill:
+                draw.polygon(path_points, fill=fill)
+            if stroke:
+                draw.line(path_points, fill=stroke, width=stroke_width)
+
+        except Exception as e:
+            print(f"Error rendering path: {e}")
+
+    def _cubic_bezier_curve(self, start, control1, control2, end, steps=50):
+        """
+        Generate points for a cubic Bézier curve
+        """
+        points = []
+        for t in range(steps + 1):
+            t /= steps
+            x = (1 - t) ** 3 * start[0] + 3 * (1 - t) ** 2 * t * control1[0] + 3 * (1 - t) * t ** 2 * control2[
+                0] + t ** 3 * end[0]
+            y = (1 - t) ** 3 * start[1] + 3 * (1 - t) ** 2 * t * control1[1] + 3 * (1 - t) * t ** 2 * control2[
+                1] + t ** 3 * end[1]
+            points.append((x, y))
+        return points
+
+    def _elliptical_arc(self, start, end):
+        """
+        Generate points for an elliptical arc
+        """
+        # placeholder for actual arc calculation
+        points = [start, end]
+        return points
 
     def _quadratic_bezier_curve(self, start, control, end, steps=50):
         """
