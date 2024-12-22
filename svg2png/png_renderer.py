@@ -1,6 +1,7 @@
 from PIL import Image, ImageDraw, ImagePath
 import re
 
+
 class PNGRenderer:
     """
     PNGRenderer class is responsible for rendering the PNG image
