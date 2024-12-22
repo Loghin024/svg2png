@@ -1,21 +1,32 @@
-<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-    <!-- Rectangle -->
-    <rect x="250" y="10" width="200" height="100" fill="blue" />
-    <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />
+<!--<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">-->
+<!--    &lt;!&ndash; Rectangle &ndash;&gt;-->
+<!--    <rect x="250" y="10" width="200" height="100" fill="blue" />-->
 <!--    <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />-->
-    <rect width="300" height="100" x="10" y="140" style="fill:rgb(0,0,255);stroke-width:3;stroke:red" />
-    <!-- Circle -->
-    <circle cx="400" cy="150" r="50" fill="red" />
+<!--&lt;!&ndash;    <rect width="200" height="100" x="10" y="10" rx="20" ry="20" fill="black" />&ndash;&gt;-->
+<!--    <rect width="300" height="100" x="10" y="140" style="fill:rgb(0,0,255);stroke-width:3;stroke:red" />-->
+<!--    &lt;!&ndash; Circle &ndash;&gt;-->
+<!--    <circle cx="400" cy="150" r="50" fill="red" />-->
 
-    <!-- Ellipse -->
-    <ellipse cx="200" cy="400" rx="100" ry="50" fill="green" />
+<!--    &lt;!&ndash; Ellipse &ndash;&gt;-->
+<!--    <ellipse cx="200" cy="400" rx="100" ry="50" fill="green" />-->
 
-    <!-- Line -->
-    <line x1="500" y1="300" x2="700" y2="500" stroke="black" stroke-width="5" />
+<!--    &lt;!&ndash; Line &ndash;&gt;-->
+<!--    <line x1="500" y1="300" x2="700" y2="500" stroke="black" stroke-width="5" />-->
 
-    <!-- Polyline -->
-    <polyline points="100,500 150,550 200,500 250,550" fill="none" stroke="purple" stroke-width="3" />
+<!--    &lt;!&ndash; Polyline &ndash;&gt;-->
+<!--    <polyline points="100,500 150,550 200,500 250,550" fill="none" stroke="purple" stroke-width="3" />-->
 
-    <!-- Path -->
-    <path d="M 300 300 Q 400 50, 500 300 T 700 300" fill="none" stroke="orange" stroke-width="4" />
+<!--    &lt;!&ndash; Path &ndash;&gt;-->
+<!--    <path d="M 300 300 Q 400 50, 500 300 T 700 300" fill="none" stroke="orange" stroke-width="4" />-->
+<!--</svg>-->
+<svg height="400" width="450" xmlns="http://www.w3.org/2000/svg">
+
+<!-- Draw the paths -->
+<path id="lineAB" d="M 100 350 l 150 -300" stroke="red" stroke-width="4"/>
+<path id="lineBC" d="M 250 50 l 150 300" stroke="red" stroke-width="4"/>
+<path id="lineMID" d="M 175 200 l 150 0" stroke="green" stroke-width="4"/>
+<path id="lineAC" d="M 100 350 q 150 -300 300 0" stroke="blue" stroke-width="4" fill="none"/>
+
+
+
 </svg>

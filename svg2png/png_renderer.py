@@ -1,5 +1,5 @@
-from PIL import Image, ImageDraw
-
+from PIL import Image, ImageDraw, ImagePath
+import re
 
 class PNGRenderer:
     """
@@ -133,31 +133,95 @@ class PNGRenderer:
     # def render_path(self, draw, element):
     #     pass
 
-    # def render_path(self, draw, element):
-    #     """
-    #     Render the path element.
-    #     """
-    #     d = element.get('d', '')  # SVG path data
-    #     fill = element.get('fill', None)
-    #     stroke = element.get('stroke', 'black')
-    #     stroke_width = int(element.get('stroke-width', 1))
-    #
-    #     # Parse the path data
-    #     path = parse_path(d)
-    #
-    #     # Convert the path to a list of points for Pillow
-    #     points = []
-    #     for segment in path:
-    #         if hasattr(segment, 'start'):
-    #             points.append((segment.start.real, segment.start.imag))
-    #         if hasattr(segment, 'end'):
-    #             points.append((segment.end.real, segment.end.imag))
-    #
-    #     # Draw the path as a polygonal approximation
-    #     if fill:
-    #         draw.polygon(points, fill=fill)
-    #     if stroke:
-    #         draw.line(points, fill=stroke, width=stroke_width)
+    def render_path(self, draw, element):
+        """
+        Render the path
+        """
+        path_data = element.get('d', '')  # Get the 'd' attribute, which contains path data
+        fill = element.get('fill', None)  # Fill color
+        stroke = element.get('stroke', None)  # Stroke color
+        stroke_width = int(element.get('stroke-width', 1))  # Stroke width
+
+        # Handle 'none' for fill and stroke
+        if fill == 'none':
+            fill = None
+        if stroke == 'none':
+            stroke = None
+
+        if not path_data:
+            return  # No path data to render
+
+        # Parse the SVG path data
+        path_segments = re.findall(r'([a-zA-Z])|([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?)', path_data)
+
+        current_pos = [0, 0]
+        start_pos = [0, 0]
+        control_point = None  # For smooth Bézier curves
+        path_points = []
+
+        i = 0
+        while i < len(path_segments):
+            segment = path_segments[i]
+
+            if segment[0].isalpha():  # Command
+                command = segment[0]
+                i += 1
+            else:  # Number
+                command = None
+
+            if command == 'M':  # Absolute move to
+                x, y = float(path_segments[i][1]), float(path_segments[i + 1][1])
+                current_pos = [x, y]
+                start_pos = [x, y]
+                path_points.append(tuple(current_pos))
+                i += 2
+
+            elif command == 'L':  # Absolute line to
+                x, y = float(path_segments[i][1]), float(path_segments[i + 1][1])
+                current_pos = [x, y]
+                path_points.append(tuple(current_pos))
+                i += 2
+
+            elif command == 'Q':  # Quadratic Bézier curve
+                x1, y1 = float(path_segments[i][1]), float(path_segments[i + 1][1])
+                x2, y2 = float(path_segments[i + 2][1]), float(path_segments[i + 3][1])
+                path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
+                control_point = [x1, y1]
+                current_pos = [x2, y2]
+                i += 4
+
+            elif command == 'T':  # Smooth quadratic Bézier curve
+                if control_point is None:  # If no previous control point, assume the current position
+                    control_point = current_pos
+
+                # Reflect the control point
+                x1, y1 = 2 * current_pos[0] - control_point[0], 2 * current_pos[1] - control_point[1]
+                x2, y2 = float(path_segments[i][1]), float(path_segments[i + 1][1])
+                path_points.extend(self._quadratic_bezier_curve(current_pos, [x1, y1], [x2, y2]))
+                control_point = [x1, y1]
+                current_pos = [x2, y2]
+                i += 2
+
+            elif command in {'Z', 'z'}:  # Close path
+                path_points.append(tuple(start_pos))
+
+        # Draw the path
+        if fill:
+            draw.polygon(path_points, fill=fill)
+        if stroke:
+            draw.line(path_points, fill=stroke, width=stroke_width)
+
+    def _quadratic_bezier_curve(self, start, control, end, steps=50):
+        """
+        Generate points for a quadratic Bézier curve
+        """
+        points = []
+        for t in range(steps + 1):
+            t /= steps
+            x = (1 - t) ** 2 * start[0] + 2 * (1 - t) * t * control[0] + t ** 2 * end[0]
+            y = (1 - t) ** 2 * start[1] + 2 * (1 - t) * t * control[1] + t ** 2 * end[1]
+            points.append((x, y))
+        return points
 
     def get_image(self):
         """
