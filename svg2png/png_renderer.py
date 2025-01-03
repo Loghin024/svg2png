@@ -161,7 +161,7 @@ class PNGRenderer:
             while i < len(path_segments):
                 segment = path_segments[i]
 
-                if segment.isalpha():  # Command
+                if segment.isalpha():  # command
                     # ensure command is uppercase
                     command = segment.upper()
 
